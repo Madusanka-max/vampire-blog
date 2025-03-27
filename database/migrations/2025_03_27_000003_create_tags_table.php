@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tags', function (Blueprint $table) {
-            $table->id();
+            $table->id(); // Creates BIGINT UNSIGNED
+            $table->string('name');
+            $table->string('slug')->unique();
             $table->timestamps();
         });
     }
