@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Laravel\Socialite\Facades\Socialite; 
+use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-
 
 class GithubController extends Controller
 {
@@ -22,21 +21,27 @@ class GithubController extends Controller
         try {
             $socialUser = Socialite::driver('github')->user();
             
-            $user = User::updateOrCreate([
-                'provider' => 'github',
-                'provider_id' => $socialUser->id,
-            ], [
-                'name' => $socialUser->name ?? $socialUser->nickname,
-                'email' => $socialUser->email,
-                'avatar' => $socialUser->avatar,
-                'role' => 'reader',
-                'password' => bcrypt(Str::random(16))
-            ]);
+            // Handle potential null email (GitHub allows private emails)
+            $email = $socialUser->email ?? $socialUser->nickname . '@github.user';
 
-            Auth::login($user);
-            return redirect('/dashboard');
+            $user = User::updateOrCreate(
+                ['provider_id' => $socialUser->id],
+                [
+                    'name' => $socialUser->name ?? $socialUser->nickname,
+                    'email' => $email,
+                    'provider' => 'github',
+                    'avatar' => $socialUser->avatar,
+                    'email_verified_at' => now(),
+                    'password' => bcrypt(Str::random(24))
+                ]
+            );
+
+            Auth::login($user, true);
+            
+            return redirect()->intended('/dashboard');
 
         } catch (\Exception $e) {
+            Log::error('GitHub Auth Error: ' . $e->getMessage());
             return redirect('/login')->withErrors('GitHub login failed: ' . $e->getMessage());
         }
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite; 
 use App\Models\User; 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Str;
 
@@ -17,25 +18,28 @@ class GoogleController extends Controller
     }
 
     public function callback()
-    {
-        try {
-            $socialUser = Socialite::driver('google')->user();
-            
-            $user = User::updateOrCreate([
-                'provider' => 'google',
-                'provider_id' => $socialUser->id,
-            ], [
-                'name' => $socialUser->name,
-                'email' => $socialUser->email,
-                'avatar' => $socialUser->avatar,
-                'role' => 'reader',
-                'password' => bcrypt(Str::random(16))
-            ]);
+{
+    try {
+        $socialUser = Socialite::driver('google')->user();
+        
+        $user = User::updateOrCreate([
+            'provider_id' => $socialUser->id,
+        ], [
+            'name' => $socialUser->name,
+            'email' => $socialUser->email,
+            'provider' => 'google',
+            'avatar' => $socialUser->avatar,
+            'email_verified_at' => now(),
+            'password' => bcrypt(Str::random(24))
+        ]);
 
-            Auth::login($user);
-            return redirect('/dashboard');
-        } catch (\Exception $e) {
-            return redirect('/login')->with('error', 'Unable to login with Google.');
-        }
+        Auth::login($user, true); 
+        
+        return redirect()->intended('/dashboard');
+
+    } catch (\Exception $e) {
+        Log::error('Google Auth Error: '.$e->getMessage());
+        return redirect('/login')->withErrors('Login failed: '.$e->getMessage());
     }
+}
 }
