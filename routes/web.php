@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\GithubController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,6 +16,17 @@ Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.
 Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
 Route::get('/auth/github', [GithubController::class, 'redirect'])->name('github.login');
 Route::get('/auth/github/callback', [GithubController::class, 'callback']);
+
+// Admin-only routes
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users');
+    // More admin routes...
+});
+
+// Editor+Admin routes
+Route::middleware(['auth', 'editor'])->group(function () {
+    Route::resource('posts', PostController::class)->except(['show']);
+});
 
 Route::get('/dashboard', function () {
     return view('dashboard');
