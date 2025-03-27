@@ -5,7 +5,11 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\GithubController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\LikeController;
+use App\Http\Controllers\SaveController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,6 +27,22 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // More admin routes...
 });
 
+// routes/web.php
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    // User Management
+    Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users');
+    Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+
+    // Post Moderation
+    Route::get('/posts', [AdminUserController::class, 'index'])->name('admin.posts');
+    Route::put('/posts/{post}/approve', [AdminUserController::class, 'approve'])->name('admin.posts.approve');
+    Route::put('/posts/{post}/reject', [AdminUserController::class, 'reject'])->name('admin.posts.reject');
+    
+    // Statistics
+    Route::get('/stats', [AdminUserController::class, 'index'])->name('admin.stats');
+});
+
 // Editor+Admin routes
 Route::middleware(['auth', 'editor'])->group(function () {
     Route::resource('posts', PostController::class)->except(['show']);
@@ -31,6 +51,16 @@ Route::middleware(['auth', 'editor'])->group(function () {
 Route::middleware(['auth', 'editor'])->group(function () {
     Route::resource('posts', PostController::class)->except(['show']);
 });
+
+// Comments
+Route::post('/posts/{post}/comments', [CommentController::class, 'store'])
+     ->name('comments.store');
+Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
+     ->name('comments.destroy');
+
+// AJAX
+Route::post('/posts/{post}/like', LikeController::class)->name('posts.like');
+Route::post('/posts/{post}/save', SaveController::class)->name('posts.save');
 
 // Public routes
 Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');

@@ -127,7 +127,8 @@ return [
 
 
     'aliases' => [
-        'Image' => env('IMAGE'),
+        'Image' => Intervention\Image\Facades\Image::class,
+
     ],
 
     

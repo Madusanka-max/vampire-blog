@@ -35,30 +35,29 @@ class PostController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|max:255',
-            'content' => 'required',
-            'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|max:2048'
-        ]);
+{
+    $validated = $request->validate([
+        'title' => 'required|max:255',
+        'content' => 'required',
+        'category_id' => 'required|exists:categories,id',
+        'image' => 'nullable|image|max:2048'
+    ]);
 
-        if ($request->hasFile('image')) {
-            $validated['image'] = $this->imageService->upload($request->file('image'), 'posts');
-        }
-        
-
-        $post = Auth::user()->posts()->create([
-            'title' => $validated['title'],
-            'slug' => Str::slug($validated['title']),
-            'content' => $validated['content'],
-            'category_id' => $validated['category_id'],
-            'image' => $request->hasFile('image') ? $request->file('image')->store('posts') : null
-        ]);
-
-        return redirect()->route('posts.show', $post);
+    $imagePath = null;
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('posts');
     }
 
+    $post = Auth::user()->posts()->create([
+        'title' => $validated['title'],
+        'slug' => Str::slug($validated['title']),
+        'content' => $validated['content'],
+        'category_id' => $validated['category_id'],
+        'image' => $imagePath
+    ]);
+
+    return redirect()->route('posts.show', $post);
+}
     public function show(Post $post)
     {
         return view('posts.show', compact('post'));

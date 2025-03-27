@@ -43,4 +43,14 @@ class Post extends Model
     public function posts(){
         return $this->hasMany(Post::class);
     }
+    
+    public function likes()
+    {
+        return $this->belongsToMany(User::class, 'likes');
+    }
+
+    public function getLikesCountAttribute()
+    {
+        return $this->likes()->count();
+    }
 }
