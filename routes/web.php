@@ -28,6 +28,14 @@ Route::middleware(['auth', 'editor'])->group(function () {
     Route::resource('posts', PostController::class)->except(['show']);
 });
 
+Route::middleware(['auth', 'editor'])->group(function () {
+    Route::resource('posts', PostController::class)->except(['show']);
+});
+
+// Public routes
+Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
