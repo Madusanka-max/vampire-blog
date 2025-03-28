@@ -10,6 +10,8 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\SaveController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Api\PostApiController;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,7 +29,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // More admin routes...
 });
 
-// routes/web.php
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // User Management
     Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users');
@@ -64,6 +65,14 @@ Route::post('/posts/{post}/save', SaveController::class)->name('posts.save');
 
 // Public routes
 Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+
+// API routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('posts', PostApiController::class);
+    Route::post('posts/{post}/like', [LikeController::class, '__invoke']);
+    Route::get('/user', fn (Request $request) => $request->user());
+});
+
 
 
 Route::get('/dashboard', function () {

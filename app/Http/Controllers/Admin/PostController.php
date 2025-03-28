@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use App\Notifications\PostStatusChanged;
 
 class PostController extends Controller
 {
@@ -29,6 +30,7 @@ class PostController extends Controller
             'status' => 'published',
             'published_at' => now()
         ]);
+        $post->user->notify(new PostStatusChanged($post));
         return back()->with('success', 'Post approved');
     }
 
