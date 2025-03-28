@@ -7,6 +7,7 @@ use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Str;
 
 class GithubController extends Controller
@@ -36,8 +37,11 @@ class GithubController extends Controller
                 ]
             );
 
+            if (!$user->hasAnyRole(Role::all())) {
+                $user->assignRole('reader');
+            }
+
             Auth::login($user, true);
-            
             return redirect()->intended('/dashboard');
 
         } catch (\Exception $e) {

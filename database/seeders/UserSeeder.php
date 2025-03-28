@@ -18,7 +18,8 @@ class UserSeeder extends Seeder
             'email' => 'admin@vampire.com',
             'password' => bcrypt('password'),
             'role' => 'admin'
-        ]);
+        ])->assignRole('admin');
+        
     
         // Create editor user
         User::create([
@@ -26,6 +27,6 @@ class UserSeeder extends Seeder
             'email' => 'editor@vampire.com',
             'password' => bcrypt('password'),
             'role' => 'editor'
-        ]);
+        ])->assignRole('editor');
     }
 }

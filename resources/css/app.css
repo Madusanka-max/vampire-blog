@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.trix-content {
+    @apply bg-white rounded p-4 min-h-[300px];
+}
+
+trix-editor {
+    @apply border-gray-300 rounded shadow-sm;
+}
+
+trix-toolbar .trix-button-group {
+    @apply bg-white border-none shadow-none;
+}
