@@ -18,7 +18,13 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->string('provider')->nullable();
+            $table->string('provider_id')->nullable();
+            $table->string('avatar')->nullable();
             $table->timestamps();
+
+            $table->index('provider');
+            $table->index('provider_id');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

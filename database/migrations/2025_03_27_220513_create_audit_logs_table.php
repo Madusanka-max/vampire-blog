@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('audit_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('action'); // e.g., user.deleted, post.approved
-            $table->morphs('auditable'); // Polymorphic relation
-            $table->foreignId('user_id')->constrained();
+            $table->string('action');
+            $table->morphs('auditable');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->json('old_values')->nullable();
             $table->json('new_values')->nullable();
             $table->timestamps();
